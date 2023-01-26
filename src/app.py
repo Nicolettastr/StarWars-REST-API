@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Character
+from models import db, Character, Planet
 #from models import Person
 
 app = Flask(__name__)
@@ -66,6 +66,41 @@ def create_character():
     body = json.loads(request.data)
     new_character = Character(name=body["name"], gender=body["gender"])
     db.session.add(new_character)
+    db.session.commit()
+
+    return "ok", 200
+
+
+@app.route('/planets', methods=['GET'])
+def handle_planets():
+
+    planets = Planet.query.all()
+    planets_list = list(map(lambda planet: planet.serialize_all(), planets))
+
+    response_body = {
+        "message": "ok",
+        "results": planets_list
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/planets/<int:id>', methods=['GET'])
+def handle_planet():
+
+    ind_planet = Planet.query.get(id)
+
+    response_body = {
+        "message": "ok",
+        "results": ind_planet.serialize_each()
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/createplanet', methods=["POST"])
+def create_planet():
+    body = json.loads(request.data)
+    new_planet = Planet(name=body["name"], population=body["population"], diameter=body["diameter"])
+    db.session.add(new_planet)
     db.session.commit()
 
     return "ok", 200
