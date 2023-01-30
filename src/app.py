@@ -105,6 +105,15 @@ def create_planet():
 
     return "ok", 200
 
+@app.route('/newuser', methods=["POST"])
+def create_user():
+    body = json.loads(request.data)
+    new_user = User(name=body["name"])
+    db.session.add(new_user)
+    db.session.commit()
+
+    return "ok", 200
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
