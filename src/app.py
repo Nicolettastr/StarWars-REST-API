@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Character, Planet
+from models import db, Character, Planet, User
 #from models import Person
 
 app = Flask(__name__)
@@ -104,6 +104,13 @@ def create_planet():
     db.session.commit()
 
     return "ok", 200
+
+@app.route('/users', methods=['GET'])
+def handle_users():
+        users = User.query.all()
+        users_info =list(map(lambda user: user.serialize_user(), users))
+        response_body = users_info
+        return jsonify(response_body), 200
 
 @app.route('/newuser', methods=["POST"])
 def create_user():
