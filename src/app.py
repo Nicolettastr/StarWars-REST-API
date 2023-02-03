@@ -121,6 +121,72 @@ def create_user():
 
     return "ok", 200
 
+@app.route('/user/<int:id>/favorites', methods=['GET'])
+def handling_favoritos(user_id):
+
+    select_character = User.query.filter_by(id=user_id).first().characterFavorite
+    select_planet = User.query.filter_by(id=user_id).first().planetsFavorite
+    Character = list(map(lambda obj: obj.serialize(), select_character))
+    Planets = list(map(lambda obj: obj.serialize(), select_planet))
+
+    return jsonify({
+        "CharacterFavorite": Character,
+        "PlanetsFavorite": Planets
+    }), 200
+
+@app.route('/favorite/character/<int:id>', methods=['POST'])
+def add_character(characterid, userid):
+    user_id = userid
+    user = User.query.get(user_id)
+    character = Character.query.get(characterid)
+    favList = User.query.filter_by(id=user_id).first().characterFavorite
+    favList.append(character)
+    db.session.commit()
+
+    return jsonify({
+        "characterFavorite": list(map(lambda obj: obj.serialize_user(), favList))
+    }), 200
+
+@app.route('/favorite/planet/<int:id>', methods=['POST'])
+def add_planet(planetid, userid):
+    user_id = userid
+    user = User.query.get(user_id)
+    planet = Planet.query.get(planetid)
+    favList = User.query.filter_by(id=user_id).first().planetsFavorite
+    favList.append(planet)
+    db.session.commit()
+
+    return jsonify({
+        "planetsFavorite": list(map(lambda obj: obj.serialize_user(), favList))
+    }), 200
+
+@app.route('/favorite/character/<int:id>', methods=['DELETE'])
+def removeFavCharacter(characterid, userid):
+    user_id = userid
+    user = User.query.get(user_id)
+    character = Character.query.get(characterid)
+    favList = User.query.filter_by(id=user_id).first().characterFavorite
+    favList.remove(character)
+    db.session.commit()
+
+    return jsonify({
+        "characterFavorite": list(map(lambda obj: obj.serialize_user(), favList))
+    }), 200
+
+@app.route('/favorite/character/<int:id>', methods=['DELETE'])
+def removeFavPlanet(planetid, userid):
+    user_id = userid
+    user = User.query.get(user_id)
+    planet = Planet.query.get(planetid)
+    favList = User.query.filter_by(id=user_id).first().planetsFavorite
+    favList.remove(planet)
+    db.session.commit()
+
+    return jsonify({
+        "planetsFavorite": list(map(lambda obj: obj.serialize_user(), favList))
+    }), 200
+
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
